@@ -1,6 +1,7 @@
 package pink.philip.brainmug.api.instructions.bf;
 
 import pink.philip.brainmug.api.BrainmugContext;
+import pink.philip.brainmug.api.exceptions.BrainmugRuntimeException;
 import pink.philip.brainmug.api.instructions.Instruction;
 
 import java.util.Objects;
@@ -28,8 +29,11 @@ public class LoopInstruction implements BrainfuckInstruction {
     @Override
     public void execute(BrainmugContext context) {
         final boolean emptyLoop = instructions.length == 0;
-        // TODO: Exception when indefinite loop is detected.
         while (context.getMemory().isNotZero()) {
+            if (emptyLoop) {
+                throw new BrainmugRuntimeException(
+                        "Stuck in an indefinite loop.");
+            }
             for (Instruction instruction : instructions) {
                 instruction.execute(context);
             }
