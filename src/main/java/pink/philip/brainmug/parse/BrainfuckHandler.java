@@ -11,7 +11,7 @@ import java.util.Stack;
 /**
  * Create a brainfuck program from a stream of instructions.
  */
-public class DefaultHandler implements TokenSequenceHandler<DefaultToken> {
+public class BrainfuckHandler implements TokenSequenceHandler<BrainfuckToken> {
     /**
      * The list of instructions.
      */
@@ -23,7 +23,7 @@ public class DefaultHandler implements TokenSequenceHandler<DefaultToken> {
     }
 
     @Override
-    public void handleToken(DefaultToken token) {
+    public void handleToken(BrainfuckToken token) {
         if (stack.isEmpty()) {
             throw new RuntimeException("Program not started correctly.");
         }

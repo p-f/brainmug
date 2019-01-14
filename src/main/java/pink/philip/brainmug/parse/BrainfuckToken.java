@@ -3,7 +3,7 @@ package pink.philip.brainmug.parse;
 /**
  * Default tokens of the brainf{@code ***} language.
  */
-public enum DefaultToken implements Token {
+public enum BrainfuckToken implements Token {
     LEFT('<'),
     RIGHT('>'),
     DECREMENT('-'),
@@ -23,7 +23,7 @@ public enum DefaultToken implements Token {
      *
      * @param str The {@code char} identifying this token.
      */
-    DefaultToken(char str) {
+    BrainfuckToken(char str) {
         this.str = str;
     }
 

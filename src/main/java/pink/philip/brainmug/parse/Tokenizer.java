@@ -8,7 +8,7 @@ import java.io.InputStream;
  *
  * @param <T> The type of tokens to recognize.
  */
-public interface Tokenizer<T extends Enum<T> & Token> {
+public interface Tokenizer<T extends Token> {
 
     /**
      * Tokenize an {@link InputStream} and forward the tokens to a handler.

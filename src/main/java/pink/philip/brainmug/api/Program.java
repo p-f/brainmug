@@ -5,7 +5,7 @@ import pink.philip.brainmug.api.instructions.Instruction;
 import java.util.Objects;
 
 /**
- * A programm that can be executed using the brainmug runtime.
+ * A program that can be executed using the brainmug runtime.
  */
 public class Program implements Instruction {
 

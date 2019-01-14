@@ -5,6 +5,9 @@ import pink.philip.brainmug.api.Program;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * A parser for the brainfuck language.
+ */
 public class BrainfuckParser {
     /**
      * Parse a brainfuck program from an input stream.
@@ -15,9 +18,9 @@ public class BrainfuckParser {
      * @throws RuntimeException On parser errors.
      */
     public Program parse(InputStream inputStream) throws IOException {
-        Tokenizer<DefaultToken> tokenizer =
-                new DefaultTokenizer<>(DefaultToken.class);
-        DefaultHandler brainfuckHandler = new DefaultHandler();
+        Tokenizer<BrainfuckToken> tokenizer =
+                new DefaultTokenizer<>(BrainfuckToken.class);
+        BrainfuckHandler brainfuckHandler = new BrainfuckHandler();
         tokenizer.tokenize(inputStream, brainfuckHandler);
         return brainfuckHandler.getProgram();
     }
