@@ -13,48 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pink.philip.brainmug.runtime.impl.io;
+package pink.philip.brainmug.testutils;
 
 import pink.philip.brainmug.api.RuntimeIO;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.io.Reader;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
- * An IO implemention using the {@link System#in I}{@link System#out O}.
+ * An IO implementation used for testing.
  */
-public class SystemIO implements RuntimeIO {
+public class TestIO implements RuntimeIO {
     /**
-     * The systems output stream.
+     * A byte supplier used as a dummy input.
      */
-    private final PrintStream out;
+    private Supplier<Byte> byteSupplier;
 
     /**
-     * A reader reading the systems input stream.
+     * A byte consumer used as a dummy output.
      */
-    private final Reader in;
+    private Consumer<Byte> byteConsumer;
 
-    /**
-     * Constructor.
-     */
-    public SystemIO() {
-        out = System.out;
-        in = new InputStreamReader(System.in);
+    public TestIO(Supplier<Byte> byteSupplier, Consumer<Byte> byteConsumer) {
+        this.byteSupplier = byteSupplier;
+        this.byteConsumer = byteConsumer;
     }
 
     @Override
     public void print(byte data) {
-        out.print((char) data);
+        byteConsumer.accept(data);
     }
 
     @Override
     public byte read() {
-        try {
-            return (byte) (in.read() & 0xFF);
-        } catch (IOException e) {
-            return 0;
-        }
+        return byteSupplier.get();
     }
 }

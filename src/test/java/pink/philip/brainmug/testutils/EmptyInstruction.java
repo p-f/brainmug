@@ -13,37 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pink.philip.brainmug.parse;
+package pink.philip.brainmug.testutils;
+
+import pink.philip.brainmug.api.BrainmugContext;
+import pink.philip.brainmug.api.instructions.Instruction;
 
 /**
- * Default tokens of the brainf{@code ***} language.
+ * An instruction doing nothing.
  */
-public enum BrainfuckToken implements Token {
-    LEFT('<'),
-    RIGHT('>'),
-    DECREMENT('-'),
-    INCREMENT('+'),
-    READ(','),
-    PRINT('.'),
-    LOOP_START('['),
-    LOOP_END(']');
-
-    /**
-     * The char used to identify this token in the code.
-     */
-    private final char str;
-
-    /**
-     * Constructor.
-     *
-     * @param str The {@code char} identifying this token.
-     */
-    BrainfuckToken(char str) {
-        this.str = str;
-    }
-
+public class EmptyInstruction implements Instruction {
     @Override
-    public char asChar() {
-        return str;
+    public void execute(BrainmugContext context) {
     }
 }

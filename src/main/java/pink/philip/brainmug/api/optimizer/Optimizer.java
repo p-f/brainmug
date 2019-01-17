@@ -13,37 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pink.philip.brainmug.parse;
+package pink.philip.brainmug.api.optimizer;
+
+import pink.philip.brainmug.api.Program;
 
 /**
- * Default tokens of the brainf{@code ***} language.
+ * An optimizer creating an optimized version of a program.
  */
-public enum BrainfuckToken implements Token {
-    LEFT('<'),
-    RIGHT('>'),
-    DECREMENT('-'),
-    INCREMENT('+'),
-    READ(','),
-    PRINT('.'),
-    LOOP_START('['),
-    LOOP_END(']');
-
+public interface Optimizer {
     /**
-     * The char used to identify this token in the code.
-     */
-    private final char str;
-
-    /**
-     * Constructor.
+     * Execute this optimizer on a certain program, creating a possible
+     * improved version of it.
      *
-     * @param str The {@code char} identifying this token.
+     * @param source The source program.
+     * @return The optimized program.
      */
-    BrainfuckToken(char str) {
-        this.str = str;
-    }
-
-    @Override
-    public char asChar() {
-        return str;
-    }
+    Program execute(Program source);
 }

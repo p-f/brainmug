@@ -13,37 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pink.philip.brainmug.parse;
+package pink.philip.brainmug.api.instructions;
+
+import java.util.List;
 
 /**
- * Default tokens of the brainf{@code ***} language.
+ * An instruction that is composed of other instructions.
  */
-public enum BrainfuckToken implements Token {
-    LEFT('<'),
-    RIGHT('>'),
-    DECREMENT('-'),
-    INCREMENT('+'),
-    READ(','),
-    PRINT('.'),
-    LOOP_START('['),
-    LOOP_END(']');
+public interface CompositeInstruction {
 
     /**
-     * The char used to identify this token in the code.
-     */
-    private final char str;
-
-    /**
-     * Constructor.
+     * Get the components of this instruction.
      *
-     * @param str The {@code char} identifying this token.
+     * @return A list of components of this instruction (possibly empty).
      */
-    BrainfuckToken(char str) {
-        this.str = str;
-    }
-
-    @Override
-    public char asChar() {
-        return str;
-    }
+    List<Instruction> getComponents();
 }
