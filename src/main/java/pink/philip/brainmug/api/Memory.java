@@ -30,8 +30,12 @@ public interface Memory {
      * Go left by a number of steps.
      *
      * @param steps The number of steps.
+     * @deprecated Use {@link #rightBy(int)} with the negated step count.
      */
-    void leftBy(int steps);
+    @Deprecated
+    default void leftBy(int steps) {
+        rightBy(-steps);
+    }
 
     /**
      * Go left by 1 step.

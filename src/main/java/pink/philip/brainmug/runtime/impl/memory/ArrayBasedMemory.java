@@ -16,8 +16,10 @@
 package pink.philip.brainmug.runtime.impl.memory;
 
 import pink.philip.brainmug.api.Memory;
+import pink.philip.brainmug.util.ArrayUtils;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * A Memory implementation using a byte array.
@@ -44,10 +46,20 @@ public class ArrayBasedMemory implements Memory {
     private int position;
 
     /**
-     * Constructor, initialize the band.
+     * Constructor, initialize with an empty band at position 0.
      */
     public ArrayBasedMemory() {
         data = new byte[INITIAL_SIZE];
+        position = 0;
+    }
+
+    /**
+     * Construction, initialize the band with some contents at position 0.
+     *
+     * @param initial The inital contents.
+     */
+    public ArrayBasedMemory(byte[] initial) {
+        data = Objects.requireNonNull(initial);
         position = 0;
     }
 
@@ -57,19 +69,12 @@ public class ArrayBasedMemory implements Memory {
     }
 
     @Override
-    public void leftBy(int steps) {
-        position -= steps;
-        // TODO: Make the behaviour configurable.
-        if (position < 0) {
-            position = 0;
-        }
-    }
-
-    @Override
     public void rightBy(int steps) {
         position += steps;
         if (position > data.length) {
             data = Arrays.copyOf(data, data.length + SIZE_INCREMENT);
+        } else if (position < 0) {
+            position = 0;
         }
     }
 
@@ -86,5 +91,14 @@ public class ArrayBasedMemory implements Memory {
     @Override
     public void set(byte value) {
         data[position] = value;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ArrayBasedMemory)) {
+            return false;
+        }
+        ArrayBasedMemory other = (ArrayBasedMemory) obj;
+        return ArrayUtils.equalsByData(this.data, other.data);
     }
 }

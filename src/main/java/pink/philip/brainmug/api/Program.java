@@ -52,4 +52,13 @@ public class Program implements Instruction, CompositeInstruction {
     public List<Instruction> getComponents() {
         return Arrays.asList(instructions);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Instruction component : instructions) {
+            sb.append(component.toString());
+        }
+        return sb.toString();
+    }
 }
