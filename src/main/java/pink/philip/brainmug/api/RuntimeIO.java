@@ -18,7 +18,7 @@ package pink.philip.brainmug.api;
 /**
  * Provides a way to output or to read a byte.
  */
-public interface RuntimeIO {
+public interface RuntimeIO extends AutoCloseable {
     /**
      * Print a byte.
      *
@@ -32,4 +32,8 @@ public interface RuntimeIO {
      * @return The byte.
      */
     byte read();
+
+    @Override
+    default void close() throws Exception {
+    }
 }

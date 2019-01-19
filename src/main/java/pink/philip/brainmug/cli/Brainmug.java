@@ -15,8 +15,7 @@
  */
 package pink.philip.brainmug.cli;
 
-import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
+import org.apache.commons.cli.*;
 import pink.philip.brainmug.api.BrainmugContext;
 import pink.philip.brainmug.api.Memory;
 import pink.philip.brainmug.api.Program;
@@ -25,12 +24,16 @@ import pink.philip.brainmug.parse.BrainfuckParser;
 import pink.philip.brainmug.runtime.impl.BrainfuckContext;
 import pink.philip.brainmug.runtime.impl.io.JLineIO;
 import pink.philip.brainmug.runtime.impl.memory.ArrayBasedMemory;
+import pink.philip.brainmug.runtime.impl.optimizer.bf.MergeRepeatedInstructions;
 
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The main class, providing the CLI.
@@ -43,23 +46,60 @@ public class Brainmug {
      * @param args The command line arguments.
      */
     public static void main(String[] args) throws Exception {
-        if (args.length < 1) {
-            System.err.println("Usage: INFILE");
+        CommandLine options;
+        try {
+            options = parseOptions(args);
+        } catch (ParseException e) {
+            System.err.println("Failed to parse options: " + e.getMessage());
             return;
         }
-        Path path = Paths.get(args[0]);
-        InputStream input = Files.newInputStream(path, StandardOpenOption.READ);
+        List<String> extraArgs = options.getArgList();
+        if (extraArgs.isEmpty()) {
+            System.err.println("No input file.");
+            return;
+        }
+        Path readable = null;
+        for (String extraArg : extraArgs) {
+            Path path = Paths.get(extraArg);
+            if (Files.isReadable(path)) {
+                readable = path;
+                break;
+            } else {
+                System.err.println("File not readable: " + extraArg);
+            }
+        }
+        if (readable == null) {
+            System.err.println("No input file.");
+            return;
+        }
+        InputStream input = Files.newInputStream(readable,
+                StandardOpenOption.READ);
         Program program = new BrainfuckParser().parse(input);
         input.close();
+        if (options.hasOption('O')) {
+            program = new MergeRepeatedInstructions().execute(program);
+        }
 
-        Terminal terminal = TerminalBuilder.terminal();
-        terminal.echo(false);
-        terminal.enterRawMode();
-        RuntimeIO io = new JLineIO(terminal);
+        RuntimeIO io = new JLineIO();
         Memory memory = new ArrayBasedMemory();
         BrainmugContext context = new BrainfuckContext(memory, io);
 
         program.execute(context);
-        terminal.close();
+        io.close();
+    }
+
+    /**
+     * Parse the command line arguments.
+     *
+     * @param args The command line arguments.
+     * @return The parsed arguments.
+     * @throws ParseException when parsing fails.
+     */
+    private static CommandLine parseOptions(String[] args) throws ParseException {
+        Options options = new Options();
+        options.addOption(new Option("h", "help", false, "Show this help."));
+        options.addOption(new Option("O", "optimize", false,
+                "Optimize the program."));
+        return new DefaultParser().parse(options, args);
     }
 }

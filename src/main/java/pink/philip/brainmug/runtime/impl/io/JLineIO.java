@@ -16,6 +16,7 @@
 package pink.philip.brainmug.runtime.impl.io;
 
 import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 import pink.philip.brainmug.api.RuntimeIO;
 
 import java.io.IOException;
@@ -27,8 +28,27 @@ import java.util.Objects;
  * IO implementation based on JLine3.
  */
 public class JLineIO implements RuntimeIO {
+    /**
+     * The terminal.
+     */
+    private final Terminal terminal;
+
+    /**
+     * A reader for accessing the terminal input.
+     */
     private final Reader terminalInput;
+
+    /**
+     * A writer for accessing the terminal output.
+     */
     private final Writer terminalOutput;
+
+    /**
+     * Setup this implementation using a default configuration.
+     */
+    public JLineIO() {
+        this(defaultTerminal());
+    }
 
     /**
      * Setup this implementation.
@@ -36,7 +56,8 @@ public class JLineIO implements RuntimeIO {
      * @param terminal The terminal to use.
      */
     public JLineIO(Terminal terminal) {
-        terminalInput = Objects.requireNonNull(terminal).reader();
+        this.terminal = Objects.requireNonNull(terminal);
+        terminalInput = terminal.reader();
         terminalOutput = terminal.writer();
     }
 
@@ -57,5 +78,27 @@ public class JLineIO implements RuntimeIO {
         } catch (IOException e) {
             throw new RuntimeException("Failed to read.", e);
         }
+    }
+
+    /**
+     * Get a JLine {@link Terminal} with a preferred configuration.
+     *
+     * @return The terminal.
+     */
+    private static Terminal defaultTerminal() {
+        try {
+            Terminal t = TerminalBuilder.terminal();
+            t.echo(false);
+            t.enterRawMode();
+            return t;
+        } catch (IOException e) {
+            throw new UnsupportedOperationException("Failed to get terminal.",
+                    e);
+        }
+    }
+
+    @Override
+    public void close() throws Exception {
+        terminal.close();
     }
 }

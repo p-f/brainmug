@@ -34,6 +34,24 @@ import java.util.Stack;
  */
 public class MergeRepeatedInstructions implements Optimizer {
     /**
+     * Determines the kind of a composite instruction.
+     */
+    private enum CompositeKind {
+        /**
+         * A loop.
+         */
+        LOOP,
+        /**
+         * A generic composite that has no additional semantics.
+         */
+        BLOCK,
+        /**
+         * Something else.
+         */
+        UNKNOWN
+    }
+
+    /**
      * The visitor detecting optimizable instructions.
      */
     private class Visitor implements ProgramVisitor {
@@ -46,7 +64,7 @@ public class MergeRepeatedInstructions implements Optimizer {
         /**
          * Should the body at the current depth be optimized?
          */
-        private Stack<Boolean> state = new Stack<>();
+        private Stack<CompositeKind> state = new Stack<>();
 
         /**
          * The last optimizable instruction to be added to the output program.
@@ -56,13 +74,17 @@ public class MergeRepeatedInstructions implements Optimizer {
 
         @Override
         public void visitCompositeStart(CompositeInstruction instruction) {
+            if (instruction instanceof Program) {
+                state.push(CompositeKind.BLOCK);
+                return;
+            }
             clearQueue();
             if (instruction instanceof LoopInstruction) {
                 builder.startLoop();
-                state.push(true);
+                state.push(CompositeKind.LOOP);
             } else if (instruction instanceof Instruction) {
                 builder.addCustom((Instruction) instruction);
-                state.push(false);
+                state.push(CompositeKind.UNKNOWN);
             } else {
                 throw new IllegalStateException("Unknown instruction type: " +
                         instruction);
@@ -71,8 +93,11 @@ public class MergeRepeatedInstructions implements Optimizer {
 
         @Override
         public void visitCompositeEnd() {
-            clearQueue();
-            if (state.pop()) {
+            CompositeKind top = state.pop();
+            if (top != CompositeKind.BLOCK) {
+                clearQueue();
+            }
+            if (top == CompositeKind.LOOP) {
                 builder.endLoop();
             }
         }
@@ -81,11 +106,12 @@ public class MergeRepeatedInstructions implements Optimizer {
         public void visitInstruction(Instruction instruction) {
             // We are inside an unknown composite instruction, we don't
             // want to change its components.
-            if (!state.peek()) {
+            if (state.peek() == CompositeKind.UNKNOWN) {
                 return;
             }
             // Only consider supported instructions.
             if (!isSupported(instruction)) {
+                clearQueue();
                 builder.addCustom(instruction);
                 return;
             }
