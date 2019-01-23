@@ -72,7 +72,13 @@ public class ArrayBasedMemory implements Memory {
     public void rightBy(int steps) {
         position += steps;
         if (position > data.length) {
-            data = Arrays.copyOf(data, data.length + SIZE_INCREMENT);
+            final int newLength = SIZE_INCREMENT *
+                    (Math.floorDiv(position, SIZE_INCREMENT) + 1);
+            if (position >= newLength) {
+                throw new IllegalStateException(
+                        "Failed to calculate new memory size.");
+            }
+            data = Arrays.copyOf(data, newLength);
         } else if (position < 0) {
             position = 0;
         }

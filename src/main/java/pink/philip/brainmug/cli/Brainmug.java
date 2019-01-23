@@ -25,15 +25,16 @@ import pink.philip.brainmug.runtime.impl.BrainfuckContext;
 import pink.philip.brainmug.runtime.impl.io.JLineIO;
 import pink.philip.brainmug.runtime.impl.memory.ArrayBasedMemory;
 import pink.philip.brainmug.runtime.impl.optimizer.bf.MergeRepeatedInstructions;
+import pink.philip.brainmug.util.DefaultBrainmugWriter;
 
+import java.io.BufferedWriter;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The main class, providing the CLI.
@@ -79,7 +80,19 @@ public class Brainmug {
         if (options.hasOption('O')) {
             program = new MergeRepeatedInstructions().execute(program);
         }
-
+        if (options.hasOption('c'))  {
+            String outputPathParameter = options.getOptionValue('c');
+            Path outPath = Paths.get(outputPathParameter);
+            if (!Files.exists(outPath)) {
+                BufferedWriter writer = Files.newBufferedWriter(outPath,
+                        StandardCharsets.UTF_8);
+                DefaultBrainmugWriter.write(program, writer);
+                writer.close();
+            } else {
+                System.err.println("File already exists: " +
+                        outputPathParameter);
+            }
+        }
         RuntimeIO io = new JLineIO();
         Memory memory = new ArrayBasedMemory();
         BrainmugContext context = new BrainfuckContext(memory, io);
@@ -98,6 +111,8 @@ public class Brainmug {
     private static CommandLine parseOptions(String[] args) throws ParseException {
         Options options = new Options();
         options.addOption(new Option("h", "help", false, "Show this help."));
+        options.addOption(new Option("c", "output-comiled", true,
+                "Write the compiled program to a file."));
         options.addOption(new Option("O", "optimize", false,
                 "Optimize the program."));
         return new DefaultParser().parse(options, args);
