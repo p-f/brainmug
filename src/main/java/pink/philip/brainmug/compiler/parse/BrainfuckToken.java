@@ -13,29 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pink.philip.brainmug.parse;
+package pink.philip.brainmug.compiler.parse;
 
 /**
- * A handler for a sequence of {@link Token}s (or any object) of a certain type.
- *
- * @param <T> The token type.
+ * Default tokens of the brainf{@code ***} language.
  */
-public interface TokenSequenceHandler<T> {
+public enum BrainfuckToken implements Token {
+    LEFT('<'),
+    RIGHT('>'),
+    DECREMENT('-'),
+    INCREMENT('+'),
+    READ(','),
+    PRINT('.'),
+    LOOP_START('['),
+    LOOP_END(']');
 
     /**
-     * Handle the start of the token sequence.
+     * The char used to identify this token in the code.
      */
-    void handleStart();
+    private final char str;
 
     /**
-     * Handle a token.
+     * Constructor.
      *
-     * @param token The token.
+     * @param str The {@code char} identifying this token.
      */
-    void handleToken(T token);
+    BrainfuckToken(char str) {
+        this.str = str;
+    }
 
-    /**
-     * Handle the end of the sequence.
-     */
-    void handleEnd();
+    @Override
+    public char asChar() {
+        return str;
+    }
 }

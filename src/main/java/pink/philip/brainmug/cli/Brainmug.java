@@ -16,20 +16,18 @@
 package pink.philip.brainmug.cli;
 
 import org.apache.commons.cli.*;
+import pink.philip.brainmug.BrainfuckCompiler;
 import pink.philip.brainmug.api.BrainmugContext;
 import pink.philip.brainmug.api.Memory;
 import pink.philip.brainmug.api.Program;
 import pink.philip.brainmug.api.RuntimeIO;
-import pink.philip.brainmug.parse.BrainfuckParser;
+import pink.philip.brainmug.compiler.CompilerPipeline;
 import pink.philip.brainmug.runtime.impl.BrainfuckContext;
 import pink.philip.brainmug.runtime.impl.io.JLineIO;
 import pink.philip.brainmug.runtime.impl.memory.ArrayBasedMemory;
-import pink.philip.brainmug.runtime.impl.optimizer.bf.MergeRepeatedInstructions;
-import pink.philip.brainmug.util.DefaultBrainmugWriter;
+import pink.philip.brainmug.runtime.impl.memory.IntArrayBasedMemory;
 
-import java.io.BufferedWriter;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -75,9 +73,12 @@ public class Brainmug {
         }
         InputStream input = Files.newInputStream(readable,
                 StandardOpenOption.READ);
-        Program program = new BrainfuckParser().parse(input);
+        CompilerPipeline<InputStream, Program> compiler =
+                BrainfuckCompiler.getInstance();
+        Program program = compiler.run(input)
+                .orElseThrow(RuntimeException::new);
         input.close();
-        if (options.hasOption('O')) {
+        /*if (options.hasOption('O')) {
             program = new MergeRepeatedInstructions().execute(program);
         }
         if (options.hasOption('c'))  {
@@ -92,9 +93,10 @@ public class Brainmug {
                 System.err.println("File already exists: " +
                         outputPathParameter);
             }
-        }
+        }*/
         RuntimeIO io = new JLineIO();
-        Memory memory = new ArrayBasedMemory();
+        Memory memory = options.hasOption('I')
+                ? new IntArrayBasedMemory() : new ArrayBasedMemory();
         BrainmugContext context = new BrainfuckContext(memory, io);
 
         program.execute(context);
@@ -113,8 +115,20 @@ public class Brainmug {
         options.addOption(new Option("h", "help", false, "Show this help."));
         options.addOption(new Option("c", "output-comiled", true,
                 "Write the compiled program to a file."));
+        options.addOption(new Option("X", "allow-experimental-options", false,
+                "Enable experimental options."));
+        options.addOption(new Option("I", "use-int-memory", false,
+                "Use new experimental memory implementation."));
         options.addOption(new Option("O", "optimize", false,
                 "Optimize the program."));
-        return new DefaultParser().parse(options, args);
+        CommandLine cli = new DefaultParser().parse(options, args);
+        if (cli.hasOption('h')) {
+            new HelpFormatter().printHelp("brainmug", options);
+        }
+        if (cli.hasOption('I') && !cli.hasOption('X')) {
+            throw new IllegalArgumentException(
+                    "Experimental features are not enabled.");
+        }
+        return cli;
     }
 }

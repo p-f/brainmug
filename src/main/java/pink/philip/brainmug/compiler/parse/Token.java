@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pink.philip.brainmug.parse;
+package pink.philip.brainmug.compiler.parse;
 
 /**
  * Tokens that can be identified using a single {@code char}.

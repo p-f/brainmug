@@ -13,37 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pink.philip.brainmug.parse;
+package pink.philip.brainmug.compiler;
 
 /**
- * Default tokens of the brainf{@code ***} language.
+ * A stage of the compilation process.
+ *
+ * @param <I> The type of input elements.
+ * @param <O> The type of output elements.
  */
-public enum BrainfuckToken implements Token {
-    LEFT('<'),
-    RIGHT('>'),
-    DECREMENT('-'),
-    INCREMENT('+'),
-    READ(','),
-    PRINT('.'),
-    LOOP_START('['),
-    LOOP_END(']');
+public interface CompilerStage<I, O> {
 
     /**
-     * The char used to identify this token in the code.
-     */
-    private final char str;
-
-    /**
-     * Constructor.
+     * Initialize this stage.<p>
+     * The default implementation of this function does nothing.
      *
-     * @param str The {@code char} identifying this token.
+     * @param context The context to be used by this stage.
      */
-    BrainfuckToken(char str) {
-        this.str = str;
+    default void open(CompilerContext<O> context) {
     }
 
-    @Override
-    public char asChar() {
-        return str;
+    /**
+     * Handle an input element.
+     *
+     * @param inputElement The input element.
+     */
+    void handle(I inputElement);
+
+    /**
+     * End this stage.<p>
+     * The default implementation of this function does nothing.
+     */
+    default void close() {
     }
 }

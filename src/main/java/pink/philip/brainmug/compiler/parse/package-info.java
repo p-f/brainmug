@@ -16,4 +16,4 @@
 /**
  * The source parser.
  */
-package pink.philip.brainmug.parse;
+package pink.philip.brainmug.compiler.parse;

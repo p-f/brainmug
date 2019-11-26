@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pink.philip.brainmug.parse;
+package pink.philip.brainmug.compiler.bf;
 
 import pink.philip.brainmug.api.Program;
 import pink.philip.brainmug.api.instructions.Instruction;
 import pink.philip.brainmug.api.instructions.bf.*;
+import pink.philip.brainmug.compiler.AbstractCompilerStage;
+import pink.philip.brainmug.compiler.CompilerContext;
+import pink.philip.brainmug.compiler.parse.BrainfuckToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,19 +29,22 @@ import java.util.Stack;
 /**
  * Create a brainfuck program from a stream of instructions.
  */
-public class BrainfuckHandler implements TokenSequenceHandler<BrainfuckToken> {
+public class CreateInstructionsFromTokens
+        extends AbstractCompilerStage<BrainfuckToken, Program> {
+
     /**
      * The list of instructions.
      */
     private final Stack<List<Instruction>> stack = new Stack<>();
 
     @Override
-    public void handleStart() {
+    public void open(CompilerContext<Program> context) {
+        super.open(context);
         stack.push(new ArrayList<>());
     }
 
     @Override
-    public void handleToken(BrainfuckToken token) {
+    public void handle(BrainfuckToken token) {
         if (stack.isEmpty()) {
             throw new RuntimeException("Program not started correctly.");
         }
@@ -77,13 +83,15 @@ public class BrainfuckHandler implements TokenSequenceHandler<BrainfuckToken> {
     }
 
     @Override
-    public void handleEnd() {
+    public void close() {
         if (stack.isEmpty()) {
             throw new RuntimeException("Program parser not initialized " +
                     "correctly.");
         } else if (stack.size() > 1) {
             throw new RuntimeException("Some loops were not closed.");
         }
+        emit(getProgram());
+        super.close();
     }
 
     /**

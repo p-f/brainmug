@@ -13,25 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pink.philip.brainmug.parse;
+package pink.philip.brainmug.compiler.input;
+
+import pink.philip.brainmug.compiler.AbstractCompilerStage;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 
 /**
- * Split a sequence of characters into a sequence of tokens.
- *
- * @param <T> The type of tokens to recognize.
+ * A compiler stage providing a character stream from an {@link InputStream}.
  */
-public interface Tokenizer<T extends Token> {
+public class InputFromStream
+        extends AbstractCompilerStage<InputStream, Integer> {
 
-    /**
-     * Tokenize an {@link InputStream} and forward the tokens to a handler.
-     *
-     * @param input   The input stream.
-     * @param handler The token sequence handler.
-     * @throws IOException When reading from the input stream fails.
-     */
-    void tokenize(InputStream input,
-                  TokenSequenceHandler<T> handler) throws IOException;
+    @Override
+    public void handle(InputStream inputElement) {
+        try {
+            while (inputElement.available() > 0) {
+                emit(inputElement.read());
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 }
